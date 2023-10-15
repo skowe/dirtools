@@ -36,3 +36,14 @@ func TestMake(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestScan(t *testing.T) {
+
+	myDir, err := Open("/home/skowe/Projects/dirtools/dirwrapper/dosntexist")
+	if err == nil {
+		t.Log(err)
+		t.Fail()
+	}
+
+	t.Log(myDir.Contents)
+}

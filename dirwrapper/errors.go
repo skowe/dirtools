@@ -1,8 +1,11 @@
 package dirwrapper
 
+import "fmt"
+
 type FileNotDirError struct {
 }
 type HashingError struct {
+	fName string
 }
 
 func (e *FileNotDirError) Error() string {
@@ -10,5 +13,5 @@ func (e *FileNotDirError) Error() string {
 }
 
 func (e *HashingError) Error() string {
-	return "failed to hash file contents"
+	return fmt.Sprintf("failed to hash file %s contents", e.fName)
 }

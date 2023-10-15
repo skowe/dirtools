@@ -30,10 +30,11 @@ func (d *DirectoryWrapper) Read() (map[string]string, error) {
 
 	for _, v := range dirEntries {
 		h, err := hash(filepath.Join(f.Name(), v.Name()))
-		if err != nil {
+		if err != nil && !v.IsDir() {
 			return res, &HashingError{}
+		} else if !v.IsDir() {
+			res[v.Name()] = h
 		}
-		res[v.Name()] = h
 	}
 
 	return res, nil

@@ -41,10 +41,12 @@ func Open(directoryPath string) (*DirectoryWrapper, error) {
 	contents := make(map[string]string)
 	for _, v := range dirEntries {
 		h, err := hash(filepath.Join(f.Name(), v.Name()))
-		if err != nil {
+		if err != nil && !v.IsDir() {
 			return res, &HashingError{}
+		} else if !v.IsDir() {
+			contents[v.Name()] = h
 		}
-		contents[v.Name()] = h
+		// contents[v.Name()] = h
 	}
 	res.Dir = directoryPath
 	res.Contents = contents
