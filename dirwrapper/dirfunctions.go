@@ -66,3 +66,8 @@ func hash(pathToFile string) (string, error) {
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
+
+func Make(d *DirectoryWrapper) error {
+
+	return os.MkdirAll(d.Dir, 0766)
+}

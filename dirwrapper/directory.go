@@ -11,11 +11,15 @@ type DirectoryWrapper struct {
 	Contents map[string]string
 }
 
-func (d *DirectoryWrapper) Read() (os.DirEntry, error) {
-
+// Returns map with difference between directory reads and an erorr value
+// Run the update method after this if differences were detected
+// If error exists then the map is empty never nil
+// If there are no detectable changes the map is empty and error value is nil
+func (d *DirectoryWrapper) Read() (map[string]string, error) {
+	res := make(map[string]string)
 	f, err := os.Open(d.Dir)
 	if err != nil {
-		return nil, err
+		return res, err
 	}
 	defer f.Close()
 
@@ -24,12 +28,13 @@ func (d *DirectoryWrapper) Read() (os.DirEntry, error) {
 		return res, err
 	}
 
-	contents := make(map[string]string)
 	for _, v := range dirEntries {
 		h, err := hash(filepath.Join(f.Name(), v.Name()))
 		if err != nil {
 			return res, &HashingError{}
 		}
-		contents[v.Name()] = h
+		res[v.Name()] = h
 	}
+
+	return res, nil
 }
