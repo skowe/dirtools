@@ -12,56 +12,43 @@ import (
 // Return a pointer to DirectoryWrapper and error
 // If error is not nil DirectoryWrapper points to an empty object
 func Open(directoryPath string) (*DirectoryWrapper, error) {
-	f, err := os.Open(directoryPath)
 
+	res := &DirectoryWrapper{
+		Dir:      "",
+		Contents: make(map[string]string),
+	}
+	f, err := os.Open(directoryPath)
 	if err != nil {
-		return &DirectoryWrapper{
-			Dir:      nil,
-			Contents: make(map[string]string),
-		}, err
+		return res, err
 	}
 	defer f.Close()
 
 	stat, err := f.Stat()
 
 	if err != nil {
-		return &DirectoryWrapper{
-			Dir:      nil,
-			Contents: make(map[string]string),
-		}, err
+		return res, err
 	}
 
 	if !stat.IsDir() {
-		return &DirectoryWrapper{
-			Dir:      nil,
-			Contents: make(map[string]string),
-		}, &FileNotDirError{}
+		return res, &FileNotDirError{}
 	}
 
 	dirEntries, err := f.ReadDir(0)
 	if err != nil {
-		return &DirectoryWrapper{
-			Dir:      nil,
-			Contents: make(map[string]string),
-		}, err
+		return res, err
 	}
 
 	contents := make(map[string]string)
 	for _, v := range dirEntries {
 		h, err := hash(filepath.Join(f.Name(), v.Name()))
 		if err != nil {
-			return &DirectoryWrapper{
-				Dir:      nil,
-				Contents: make(map[string]string),
-			}, &HashingError{}
+			return res, &HashingError{}
 		}
 		contents[v.Name()] = h
 	}
-
-	return &DirectoryWrapper{
-		Dir:      f,
-		Contents: contents,
-	}, nil
+	res.Dir = directoryPath
+	res.Contents = contents
+	return res, nil
 }
 
 func hash(pathToFile string) (string, error) {
