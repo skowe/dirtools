@@ -11,6 +11,7 @@ import (
 // Open the directory at specified path
 // Return a pointer to DirectoryWrapper and error
 // If error is not nil DirectoryWrapper points to an empty object
+// TODO: Implement a way for Open to go through subdirectories right now it just skips them
 func Open(directoryPath string) (*DirectoryWrapper, error) {
 
 	res := &DirectoryWrapper{

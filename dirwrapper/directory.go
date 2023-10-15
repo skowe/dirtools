@@ -15,6 +15,7 @@ type DirectoryWrapper struct {
 // Run the update method after this if differences were detected
 // If error exists then the map is empty never nil
 // If there are no detectable changes the map is empty and error value is nil
+// TODO: Implement a way for Read to go through subdirectories right now it just skips them
 func (d *DirectoryWrapper) Read() (map[string]string, error) {
 	res := make(map[string]string)
 	f, err := os.Open(d.Dir)
