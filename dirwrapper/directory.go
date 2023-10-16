@@ -7,17 +7,12 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// Wrapps the *os.File object and provides the basic utilities by which one can check for changes in the contents.
+//TODO: WRITE THE GOD DAMN DOCS
 type Directory struct {
 	Dir      string
 	Contents []string
 }
 
-// Returns map with difference between directory reads and an erorr value
-// Run the update method after this if differences were detected
-// If error exists then the map is empty never nil
-// If there are no detectable changes the map is empty and error value is nil
-// TODO: Implement a way for Read to go through subdirectories right now it just skips them
 func (d *Directory) CheckForUpdate() ([]string, error) {
 	//res :=
 	f, err := os.Open(d.Dir)
