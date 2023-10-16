@@ -46,5 +46,6 @@ func (d *Directory) CheckForUpdate() ([]string, error) {
 			}
 		}
 	}
+	d.Contents = res
 	return res, nil
 }
