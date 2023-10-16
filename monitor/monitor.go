@@ -2,6 +2,7 @@ package monitor
 
 import (
 	"log"
+	"sync"
 
 	"github.com/skowe/dirtools/dirwrapper"
 )
@@ -33,11 +34,17 @@ func InitMonitor(directory string, bufferSize int) (*Monitor, error) {
 }
 
 // Once the signal channel closes it will close the message input channel
-func (m *Monitor) Start(signal <-chan struct{}) {
+func (m *Monitor) Start(signal <-chan struct{}, wg *sync.WaitGroup) {
+	defer func() {
+		close(m.InputCh)
+		wg.Done()
+	}()
+
+	wg.Add(1)
 	for range signal {
 		scan(m)
 	}
-	close(m.InputCh)
+
 }
 
 func scan(m *Monitor) {

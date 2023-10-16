@@ -41,11 +41,12 @@ func (d *Directory) CheckForUpdate() ([]string, error) {
 	res := make([]string, 0)
 	if len(curCon) > len(d.Contents) {
 		for _, file := range curCon {
-			if slices.Contains[[]string, string](d.Contents, file) {
+			if !slices.Contains[[]string, string](d.Contents, file) {
 				res = append(res, file)
+				d.Contents = append(d.Contents, file)
 			}
 		}
 	}
-	d.Contents = res
+
 	return res, nil
 }
