@@ -28,7 +28,7 @@ func Open(directoryPath string) (*Directory, error) {
 	}
 
 	if !stat.IsDir() {
-		return res, &FileNotDirError{}
+		return res, &FileNotDirectoryError{}
 	}
 
 	dirEntries, err := f.ReadDir(0)
@@ -39,7 +39,7 @@ func Open(directoryPath string) (*Directory, error) {
 	contents := make([]string, 0)
 	for _, v := range dirEntries {
 		if err != nil && !v.IsDir() {
-			return res, &HashingError{}
+			return res, &FileNotDirectoryError{}
 		} else if !v.IsDir() {
 			contents = append(contents, v.Name())
 		}
