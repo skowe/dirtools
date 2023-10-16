@@ -1,22 +1,19 @@
 package dirwrapper
 
 import (
-	"crypto/sha256"
-	"fmt"
-	"io"
 	"os"
-	"path/filepath"
+	"sort"
 )
 
 // Open the directory at specified path
-// Return a pointer to DirectoryWrapper and error
-// If error is not nil DirectoryWrapper points to an empty object
+// Return a pointer to Directory and error
+// If error is not nil Directory points to an empty object
 // TODO: Implement a way for Open to go through subdirectories right now it just skips them
-func Open(directoryPath string) (*DirectoryWrapper, error) {
+func Open(directoryPath string) (*Directory, error) {
 
-	res := &DirectoryWrapper{
+	res := &Directory{
 		Dir:      "",
-		Contents: make(map[string]string),
+		Contents: make([]string, 0),
 	}
 	f, err := os.Open(directoryPath)
 	if err != nil {
@@ -39,38 +36,23 @@ func Open(directoryPath string) (*DirectoryWrapper, error) {
 		return res, err
 	}
 
-	contents := make(map[string]string)
+	contents := make([]string, 0)
 	for _, v := range dirEntries {
-		h, err := hash(filepath.Join(f.Name(), v.Name()))
 		if err != nil && !v.IsDir() {
 			return res, &HashingError{}
 		} else if !v.IsDir() {
-			contents[v.Name()] = h
+			contents = append(contents, v.Name())
 		}
-		// contents[v.Name()] = h
 	}
+	sort.Slice(contents, func(i, j int) bool {
+		return contents[i] < contents[j]
+	})
 	res.Dir = directoryPath
 	res.Contents = contents
 	return res, nil
 }
 
-func hash(pathToFile string) (string, error) {
-	f, err := os.Open(pathToFile)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	h := sha256.New()
-
-	if _, err := io.Copy(h, f); err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
-}
-
-func Make(d *DirectoryWrapper) error {
+func Make(d *Directory) error {
 
 	return os.MkdirAll(d.Dir, 0766)
 }
