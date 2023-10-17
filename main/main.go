@@ -3,12 +3,14 @@ package main
 import (
 	"log"
 	"sync"
-	"time"
 
 	"github.com/skowe/dirtools/monitor"
 )
 
-const relative = "main/targetFolder"
+const (
+	relative1 = "main/targetFolder"
+	relative2 = "main/target2"
+)
 
 func logEvent(ch <-chan *monitor.Message, wg *sync.WaitGroup) {
 	defer func() {
@@ -21,20 +23,5 @@ func logEvent(ch <-chan *monitor.Message, wg *sync.WaitGroup) {
 	}
 }
 func main() {
-	sigChan := make(chan struct{}, 1)
-	mon, err := monitor.InitMonitor(relative, 2)
-	if err != nil {
-		log.Panicln(err)
-	}
-	wg := &sync.WaitGroup{}
-	log.Println(mon.Directory.Contents)
-	go mon.Start(sigChan, wg)
-	go logEvent(mon.InputCh, wg)
-	for i := 0; i <= 10; i++ {
-		sigChan <- struct{}{}
-		time.Sleep(1 * time.Second)
-	}
-	close(sigChan)
-	wg.Wait()
-	log.Println(mon.Directory.Contents)
+
 }
