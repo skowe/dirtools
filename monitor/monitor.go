@@ -38,6 +38,7 @@ func (m *Monitor) Scan() {
 		log.Fatalln("FATAL ERROR: error when starting a monitor process:", err)
 	}
 	for _, filename := range update {
+
 		message := &Message{
 			Path:     m.Directory.Dir,
 			FileName: filename,

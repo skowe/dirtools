@@ -1,7 +1,10 @@
 package monitor
 
 import (
+	"bufio"
+	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 )
@@ -11,7 +14,6 @@ type Agregator struct {
 	Monitors   []*Monitor
 	ScanSignal chan struct{}
 	Stopper    chan struct{}
-	Wg         *sync.WaitGroup
 }
 
 func New(dirs []string) *Agregator {
@@ -19,7 +21,6 @@ func New(dirs []string) *Agregator {
 		Monitors:   make([]*Monitor, 0),
 		ScanSignal: make(chan struct{}),
 		Stopper:    make(chan struct{}, 1),
-		Wg:         &sync.WaitGroup{},
 	}
 
 	for _, dir := range dirs {
@@ -36,23 +37,34 @@ func New(dirs []string) *Agregator {
 	return agregator
 }
 
-func (a *Agregator) Start(worker Worker) {
-	tick := time.NewTicker(time.Second)
-
+func (a *Agregator) Start(worker Worker, Wg *sync.WaitGroup) {
+	defer func() {
+		Wg.Done()
+	}()
+	Wg.Add(1)
+	tick := time.NewTicker(1 * time.Second)
 	for {
 		select {
 		case <-tick.C:
 			for _, mon := range a.Monitors {
 				mon.Scan()
-				worker.Work(mon.InputCh)
+				go worker.Work(mon.InputCh)
 			}
 		case <-a.Stopper:
+			fmt.Println("Stopping...")
 			tick.Stop()
+			for _, mon := range a.Monitors {
+				close(mon.InputCh)
+			}
 			return
 		}
 	}
 }
 
 func (a *Agregator) Stop() {
-	a.Stopper <- struct{}{}
+	fmt.Println("Press enter to exit the program")
+	scan := bufio.NewReader(os.Stdin)
+	scan.ReadLine()
+
+	close(a.Stopper)
 }

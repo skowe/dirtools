@@ -12,16 +12,23 @@ const (
 	relative2 = "main/target2"
 )
 
-func logEvent(ch <-chan *monitor.Message, wg *sync.WaitGroup) {
-	defer func() {
-		wg.Done()
-	}()
+type Logger struct{}
 
-	wg.Add(1)
-	for m := range ch {
-		log.Printf("EVENT: detected new file %s in folder %s\n", m.FileName, m.Path)
+func (l *Logger) Work(input any) {
+	ch, ok := input.(chan *monitor.Message)
+
+	if !ok {
+		log.Println("FATAL: Failed after scan operation")
+		return
 	}
+	log.Println(<-ch)
 }
 func main() {
+	aggr := monitor.New([]string{relative1, relative2})
+	Wg := &sync.WaitGroup{}
+	go aggr.Start(&Logger{}, Wg)
 
+	aggr.Stop()
+
+	Wg.Wait()
 }
