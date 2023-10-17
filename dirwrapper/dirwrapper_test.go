@@ -5,19 +5,19 @@ import (
 )
 
 func TestMake(t *testing.T) {
-	myDir1 := &DirectoryWrapper{
+	myDir1 := &Directory{
 		Dir:      "/home/skowe/Projects/dirtools/dirwrapper/dosntexist/dir1",
-		Contents: make(map[string]string),
+		Contents: make([]string, 0),
 	}
 
-	myDir2 := &DirectoryWrapper{
+	myDir2 := &Directory{
 		Dir:      "/home/skowe/Projects/dirtools/dirwrapper/exists",
-		Contents: make(map[string]string),
+		Contents: make([]string, 0),
 	}
 
-	myDir3 := &DirectoryWrapper{
+	myDir3 := &Directory{
 		Dir:      "/home/skowe/Projects/dirtools/dirwrapper/exists/subdir1",
-		Contents: make(map[string]string),
+		Contents: make([]string, 0),
 	}
 
 	err := Make(myDir1)
@@ -40,7 +40,7 @@ func TestMake(t *testing.T) {
 func TestScan(t *testing.T) {
 
 	myDir, err := Open("/home/skowe/Projects/dirtools/dirwrapper/dosntexist")
-	if err == nil {
+	if err != nil {
 		t.Log(err)
 		t.Fail()
 	}

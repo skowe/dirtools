@@ -2,13 +2,13 @@ package dirwrapper
 
 import "fmt"
 
-type FileNotDirError struct {
+type FileNotDirectoryError struct {
 }
 type HashingError struct {
 	fName string
 }
 
-func (e *FileNotDirError) Error() string {
+func (e *FileNotDirectoryError) Error() string {
 	return "file specified is not a directory"
 }
 
