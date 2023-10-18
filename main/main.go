@@ -3,38 +3,32 @@ package main
 import (
 	"log"
 	"sync"
-	"time"
 
 	"github.com/skowe/dirtools/monitor"
 )
 
-const relative = "main/targetFolder"
+const (
+	relative1 = "main/targetFolder"
+	relative2 = "main/target2"
+)
 
-func logEvent(ch <-chan *monitor.Message, wg *sync.WaitGroup) {
-	defer func() {
-		wg.Done()
-	}()
+type Logger struct{}
 
-	wg.Add(1)
-	for m := range ch {
-		log.Printf("EVENT: detected new file %s in folder %s\n", m.FileName, m.Path)
+func (l *Logger) Work(input any) {
+	ch, ok := input.(chan *monitor.Message)
+
+	if !ok {
+		log.Println("FATAL: Failed after scan operation")
+		return
 	}
+	log.Println(<-ch)
 }
 func main() {
-	sigChan := make(chan struct{}, 1)
-	mon, err := monitor.InitMonitor(relative, 2)
-	if err != nil {
-		log.Panicln(err)
-	}
-	wg := &sync.WaitGroup{}
-	log.Println(mon.Directory.Contents)
-	go mon.Start(sigChan, wg)
-	go logEvent(mon.InputCh, wg)
-	for i := 0; i <= 10; i++ {
-		sigChan <- struct{}{}
-		time.Sleep(1 * time.Second)
-	}
-	close(sigChan)
-	wg.Wait()
-	log.Println(mon.Directory.Contents)
+	aggr := monitor.New([]string{relative1, relative2})
+	Wg := &sync.WaitGroup{}
+	go aggr.Start(&Logger{}, Wg)
+
+	aggr.Stop()
+
+	Wg.Wait()
 }

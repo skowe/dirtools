@@ -2,7 +2,6 @@ package monitor
 
 import (
 	"log"
-	"sync"
 
 	"github.com/skowe/dirtools/dirwrapper"
 )
@@ -33,26 +32,13 @@ func InitMonitor(directory string, bufferSize int) (*Monitor, error) {
 	return res, nil
 }
 
-// Once the signal channel closes it will close the message input channel
-func (m *Monitor) Start(signal <-chan struct{}, wg *sync.WaitGroup) {
-	defer func() {
-		close(m.InputCh)
-		wg.Done()
-	}()
-
-	wg.Add(1)
-	for range signal {
-		scan(m)
-	}
-
-}
-
-func scan(m *Monitor) {
+func (m *Monitor) Scan() {
 	update, err := m.Directory.CheckForUpdate()
 	if err != nil {
 		log.Fatalln("FATAL ERROR: error when starting a monitor process:", err)
 	}
 	for _, filename := range update {
+
 		message := &Message{
 			Path:     m.Directory.Dir,
 			FileName: filename,
